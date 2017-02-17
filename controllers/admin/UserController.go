@@ -51,7 +51,6 @@ func (this *UserController) Add() {
 		} else if v := valid.Email(email, "email"); !v.Ok {
 			errmsg["email"] = "Email无效"
 		}
-		beego.Debug(errmsg)
 		if active > 0 {
 			active = 1
 		} else {
@@ -104,12 +103,66 @@ func (this *UserController) List() {
 }
 
 func (this *UserController) Edit() {
+	id, _ := this.GetInt("id")
+	user := models.User{Id: id}
+	if err := user.Read(); err != nil {
+		this.Showmsg("用户不存在")
+	}
+
+	errmsg := make(map[string]string)
+
+	if this.Ctx.Request.Method == "POST" {
+		password := strings.TrimSpace(this.GetString("password"))
+		password2 := strings.TrimSpace(this.GetString("password2"))
+		email := strings.TrimSpace(this.GetString("email"))
+		active, _ := this.GetInt("active")
+		valid := validation.Validation{}
+
+		if password != "" {
+			if v := valid.Required(password2, "password2"); !v.Ok {
+				errmsg["password2"] = "请再次输入密码"
+			} else if password != password2 {
+				errmsg["password2"] = "两次输入的密码不一致"
+			} else {
+				user.Password = util.Md5([]byte(password))
+			}
+		}
+		if v := valid.Required(email, "email"); !v.Ok {
+			errmsg["email"] = "请输入email地址"
+		} else if v := valid.Email(email, "email"); !v.Ok {
+			errmsg["email"] = "Email无效"
+		} else {
+			user.Email = email
+		}
+
+		if active > 0 {
+			user.Active = 1
+		} else {
+			user.Active = 0
+		}
+
+		if len(errmsg) == 0 {
+			user.Update()
+			this.Redirect("/admin/user/list", 302)
+		}
+	}
+	this.Data["errmsg"] = errmsg
+	this.Data["user"] = user
+
 	this.Layout = "admin/layout.html"
 	this.TplName = "admin/user/edit.html"
 }
 
 func (this *UserController) Delete() {
-
+	id, _ := this.GetInt("id")
+	if id == 1 {
+		this.Showmsg("不能删除ID为1的用户")
+	}
+	user := models.User{Id: id}
+	if user.Read() == nil {
+		user.Delete()
+	}
+	this.Redirect("/admin/user/list", 302)
 }
 
 func (this *UserController) Save() {

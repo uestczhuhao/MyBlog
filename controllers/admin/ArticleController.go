@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
 
 	"MyBlog/models"
@@ -162,7 +161,6 @@ func (this *ArticleController) Save() {
 			label.Query().Filter("Id", tempLabel).One(&label)
 			label.Count = label.Count + 1
 			label.Update("Count")
-			beego.Debug(label.Name, label.Count)
 			article.UpdateLabels(label)
 		}
 	}
