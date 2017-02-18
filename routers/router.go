@@ -10,6 +10,9 @@ import (
 func init() {
 	//前台路由
 	beego.Router("/", &myblog.IndexController{})
+	beego.Router("/myblog/qq", &myblog.IndexController{}, "*:Myqq")
+	beego.Router("/myblog/wechat", &myblog.IndexController{}, "*:Wechat")
+	beego.Router("/myblog/funny", &myblog.IndexController{}, "*:Funny")
 
 	//后台路由
 	beego.Router("/login", &admin.LoginController{}, "get:LoginIndex;post:LoginPost")
