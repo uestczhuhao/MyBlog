@@ -25,3 +25,7 @@ func (this *IndexController) Wechat() {
 func (this *IndexController) Funny() {
 	this.TplName = "myblog/funny.html"
 }
+
+func (this *IndexController) Blog() {
+	this.TplName = "myblog/blog.html"
+}
